@@ -85,13 +85,15 @@ func (s *Service) Push(deviceToken string, headers *Headers, payload []byte) (st
 		}
 		return "", err
 	}
-	defer resp.Body.Close()
-
+	
 	if resp.StatusCode == http.StatusOK {
 		return resp.Header.Get("apns-id"), nil
 	}
-
-	return "", parseErrorResponse(resp.Body, resp.StatusCode)
+	err = parseErrorResponse(resp.Body, resp.StatusCode)
+	
+	resp.Body.Close()
+	
+	return "", err
 }
 
 func parseErrorResponse(body io.Reader, statusCode int) error {
